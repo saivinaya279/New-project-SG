@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Service Providers</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f9;
+padding:30px;
+}
+
+h1{
+text-align:center;
+color:#003366;
+margin-bottom:25px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:15px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.name{
+font-size:20px;
+font-weight:bold;
+}
+
+.email{
+color:#555;
+margin-top:5px;
+}
+
+.type{
+color:#003366;
+margin-top:5px;
+}
+
+.btn-box{
+margin-top:15px;
+}
+
+.btn{
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+color:white;
+margin-right:10px;
+}
+
+.approve{
+background:#28a745;
+}
+
+.reject{
+background:#dc3545;
+}
+
+.no-users{
+text-align:center;
+font-size:18px;
+color:#666;
+}
+
+.back-btn{
+display:inline-block;
+margin-bottom:20px;
+padding:10px 15px;
+background:#3000cc;
+color:white;
+text-decoration:none;
+border-radius:6px;
+}
+
+</style>
+
+</head>
+<body>
+
+<a href="admin_dashboard.html" class="back-btn">
+← Back to Dashboard
+</a>
+
+<h1>Pending Service Provider Verification</h1>
+
+<div id="usersContainer"></div>
+
+<script>
+
+function loadUsers(){
+
+const users =
+JSON.parse(
+localStorage.getItem("registeredUsers")
+) || [];
+
+const pendingUsers =
+users.filter(user =>
+user.userType==="Service Provider"
+&&
+!user.isVerified
+);
+
+const container =
+document.getElementById("usersContainer");
+
+if(pendingUsers.length===0){
+
+container.innerHTML=
+`
+<div class="no-users">
+No pending service providers.
+</div>
+`;
+
+return;
+}
+
+container.innerHTML=
+pendingUsers.map(user =>
+
+`
+<div class="card">
+
+<div class="name">
+${user.fullName}
+</div>
+
+<div class="email">
+${user.email}
+</div>
+
+<div class="type">
+${user.userType}
+</div>
+
+<div class="btn-box">
+
+<button
+class="btn approve"
+onclick="approveUser('${user.email}')">
+Approve
+</button>
+
+<button
+class="btn reject"
+onclick="rejectUser('${user.email}')">
+Reject
+</button>
+
+</div>
+
+</div>
+`
+
+).join("");
+}
+
+function approveUser(email){
+
+let users =
+JSON.parse(
+localStorage.getItem("registeredUsers")
+) || [];
+
+users = users.map(user => {
+
+if(user.email===email){
+
+user.isVerified=true;
+}
+
+return user;
+});
+
+localStorage.setItem(
+"registeredUsers",
+JSON.stringify(users)
+);
+
+alert("Service Provider Approved!");
+
+loadUsers();
+}
+
+function rejectUser(email){
+
+let users =
+JSON.parse(
+localStorage.getItem("registeredUsers")
+) || [];
+
+users =
+users.filter(user =>
+user.email!==email
+);
+
+localStorage.setItem(
+"registeredUsers",
+JSON.stringify(users)
+);
+
+alert("User Rejected!");
+
+loadUsers();
+}
+
+loadUsers();
+
+</script>
+
+</body>
+</html>

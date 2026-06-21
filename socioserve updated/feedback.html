@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback & Rating - SocioServe</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f9;
+padding:30px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,.1);
+margin-bottom:20px;
+}
+
+h1{
+text-align:center;
+color:#003366;
+margin-bottom:20px;
+}
+
+label{
+display:block;
+margin-top:15px;
+font-weight:bold;
+}
+
+select,
+textarea{
+width:100%;
+padding:12px;
+margin-top:5px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+textarea{
+height:120px;
+resize:none;
+}
+
+button{
+margin-top:15px;
+padding:12px 20px;
+background:#003366;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+.feedback-card{
+background:white;
+padding:15px;
+border-radius:8px;
+margin-top:15px;
+box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+
+.date{
+color:gray;
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Feedback & Rating</h1>
+
+<div class="card">
+
+<label>Service Type</label>
+
+<select id="serviceType">
+<option>Issue Resolution</option>
+<option>Service Request</option>
+<option>Waste Collection</option>
+</select>
+
+<label>Rating</label>
+
+<select id="rating">
+<option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+<option value="4">⭐⭐⭐⭐ Good</option>
+<option value="3">⭐⭐⭐ Average</option>
+<option value="2">⭐⭐ Poor</option>
+<option value="1">⭐ Very Poor</option>
+</select>
+
+<label>Feedback</label>
+
+<textarea id="feedbackText"
+placeholder="Write your feedback here...">
+</textarea>
+
+<button onclick="submitFeedback()">
+Submit Feedback
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Previous Feedbacks</h2>
+
+<div id="feedbackContainer"></div>
+
+</div>
+
+</div>
+
+<script>
+
+function submitFeedback(){
+
+const serviceType =
+document.getElementById("serviceType").value;
+
+const rating =
+document.getElementById("rating").value;
+
+const feedback =
+document.getElementById("feedbackText").value;
+
+if(feedback.trim()===""){
+alert("Please enter feedback");
+return;
+}
+
+const feedbackData = {
+
+serviceType,
+rating,
+feedback,
+
+submittedOn:
+new Date().toLocaleString()
+
+};
+
+const feedbacks =
+JSON.parse(
+localStorage.getItem("feedbacks")
+) || [];
+
+feedbacks.push(feedbackData);
+
+localStorage.setItem(
+"feedbacks",
+JSON.stringify(feedbacks)
+);
+
+alert("Feedback Submitted Successfully!");
+
+document.getElementById("feedbackText").value="";
+
+loadFeedbacks();
+}
+
+function loadFeedbacks(){
+
+const feedbacks =
+JSON.parse(
+localStorage.getItem("feedbacks")
+) || [];
+
+const container =
+document.getElementById("feedbackContainer");
+
+if(feedbacks.length===0){
+
+container.innerHTML =
+"<p>No feedback submitted yet.</p>";
+
+return;
+}
+
+container.innerHTML =
+feedbacks.slice().reverse().map(f => `
+
+<div class="feedback-card">
+
+<h3>${f.serviceType}</h3>
+
+<p>
+Rating:
+${"⭐".repeat(f.rating)}
+</p>
+
+<p>
+${f.feedback}
+</p>
+
+<p class="date">
+${f.submittedOn}
+</p>
+
+</div>
+
+`).join("");
+}
+
+loadFeedbacks();
+
+</script>
+
+</body>
+</html>

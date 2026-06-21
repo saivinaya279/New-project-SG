@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Waste Pickup Requests - Admin</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f9;
+padding:30px;
+}
+
+.back-btn{
+display:inline-block;
+margin-bottom:20px;
+padding:10px 15px;
+background:#3000cc;
+color:white;
+text-decoration:none;
+border-radius:6px;
+}
+
+h1{
+text-align:center;
+color:#003366;
+margin-bottom:25px;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+
+.item{
+margin:8px 0;
+}
+
+select{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:5px;
+}
+
+.btn{
+padding:10px 15px;
+background:#3000cc;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.status{
+display:inline-block;
+padding:6px 12px;
+border-radius:20px;
+color:white;
+margin-top:10px;
+}
+
+.pending{
+background:#dc3545;
+}
+
+.assigned{
+background:#003366;
+}
+
+.progress{
+background:#ffc107;
+color:black;
+}
+
+.completed{
+background:#28a745;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<a href="admin_dashboard.html" class="back-btn">
+← Back to Dashboard
+</a>
+
+<h1>All Waste Pickup Requests</h1>
+
+<div id="container"></div>
+
+<script>
+
+function getStatusClass(status){
+
+if(status==="Collected")
+return "completed";
+
+if(status==="In Progress")
+return "progress";
+
+if(status==="Assigned")
+return "assigned";
+
+return "pending";
+}
+
+function updateWaste(index){
+
+let requests =
+JSON.parse(
+localStorage.getItem("wasteRequests")
+) || [];
+
+const team =
+document.getElementById(
+`team-${index}`
+).value;
+
+const status =
+document.getElementById(
+`status-${index}`
+).value;
+
+requests[index].assignedTeam = team;
+requests[index].status = status;
+
+localStorage.setItem(
+"wasteRequests",
+JSON.stringify(requests)
+);
+
+alert("Waste Request Updated!");
+
+loadWaste();
+}
+
+function loadWaste(){
+
+const data =
+JSON.parse(
+localStorage.getItem("wasteRequests")
+) || [];
+
+const box =
+document.getElementById(
+"container"
+);
+
+if(data.length===0){
+
+box.innerHTML =
+"<p>No requests found.</p>";
+
+return;
+}
+
+box.innerHTML =
+data.map((req,index)=>{
+
+if(!req.requestId){
+
+req.requestId =
+"WST-" + (1000 + index);
+}
+
+return `
+
+<div class="card">
+
+<h2>
+${req.requestId}
+</h2>
+
+<div class="item">
+<strong>Waste Type:</strong>
+${req.wasteType}
+</div>
+
+<div class="item">
+<strong>Location:</strong>
+${req.location}
+</div>
+
+<div class="item">
+<strong>Details:</strong>
+${req.details}
+</div>
+
+<div class="item">
+<strong>Date:</strong>
+${req.preferredDate}
+</div>
+
+<div class="item">
+<strong>Time:</strong>
+${req.preferredTime}
+</div>
+
+<div class="item">
+<strong>Assigned Team:</strong>
+${req.assignedTeam || "Not Assigned"}
+</div>
+
+<div class="status ${getStatusClass(req.status)}">
+${req.status || "Pending"}
+</div>
+
+<h4 style="margin-top:15px;">
+Assign Team
+</h4>
+
+<select id="team-${index}">
+
+<option value="">
+Select Team
+</option>
+
+<option
+${req.assignedTeam==="Waste Collection Team" ? "selected" : ""}>
+Waste Collection Team
+</option>
+
+</select>
+
+<h4>
+Update Status
+</h4>
+
+<select id="status-${index}">
+
+<option
+${req.status==="Pending" ? "selected" : ""}>
+Pending
+</option>
+
+<option
+${req.status==="Assigned" ? "selected" : ""}>
+Assigned
+</option>
+
+<option
+${req.status==="In Progress" ? "selected" : ""}>
+In Progress
+</option>
+
+<option
+${req.status==="Collected" ? "selected" : ""}>
+Collected
+</option>
+
+</select>
+
+<button
+class="btn"
+onclick="updateWaste(${index})">
+Save Changes
+</button>
+
+</div>
+
+`;
+
+}).join("");
+
+localStorage.setItem(
+"wasteRequests",
+JSON.stringify(data)
+);
+}
+
+loadWaste();
+
+</script>
+
+</body>
+</html>
+

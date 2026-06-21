@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Issue Reports - Admin</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f9;
+padding:20px;
+}
+
+.back-btn{
+display:inline-block;
+margin-bottom:20px;
+padding:10px 15px;
+background:#3000cc;
+color:white;
+text-decoration:none;
+border-radius:6px;
+}
+
+h1{
+text-align:center;
+color:#003366;
+margin-bottom:25px;
+}
+
+.report-card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,.1);
+margin-bottom:20px;
+}
+
+.images-grid{
+margin-top:10px;
+}
+
+.images-grid img{
+max-width:100%;
+max-height:250px;
+border-radius:8px;
+}
+
+.ticket{
+font-size:18px;
+font-weight:bold;
+color:#3000cc;
+margin-bottom:10px;
+}
+
+select{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:5px;
+}
+
+.btn{
+padding:10px 15px;
+border:none;
+background:#3000cc;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.status{
+display:inline-block;
+padding:6px 12px;
+border-radius:20px;
+color:white;
+font-size:14px;
+margin-top:10px;
+}
+
+.pending{
+background:#dc3545;
+}
+
+.progress{
+background:#ffc107;
+color:black;
+}
+
+.resolved{
+background:#28a745;
+}
+
+.assigned{
+background:#003366;
+}
+
+</style>
+</head>
+
+<body>
+
+<a href="admin_dashboard.html" class="back-btn">
+← Back to Dashboard
+</a>
+
+<h1>All Reported Issues</h1>
+
+<div id="reportsContainer"></div>
+
+<script>
+
+function saveChanges(index){
+
+let issues =
+JSON.parse(
+localStorage.getItem("reportedIssues")
+) || [];
+
+const team =
+document.getElementById(
+`team-${index}`
+).value;
+
+const status =
+document.getElementById(
+`status-${index}`
+).value;
+
+issues[index].assignedTeam = team;
+issues[index].status = status;
+
+localStorage.setItem(
+"reportedIssues",
+JSON.stringify(issues)
+);
+
+alert("Issue Updated Successfully!");
+
+loadReports();
+}
+
+function getStatusClass(status){
+
+if(status==="Resolved")
+return "resolved";
+
+if(status==="In Progress")
+return "progress";
+
+if(status==="Assigned")
+return "assigned";
+
+return "pending";
+}
+
+function loadReports(){
+
+const issues =
+JSON.parse(
+localStorage.getItem("reportedIssues")
+) || [];
+
+const container =
+document.getElementById(
+"reportsContainer"
+);
+
+if(issues.length===0){
+
+container.innerHTML=
+"<p>No issues found.</p>";
+
+return;
+}
+
+container.innerHTML=
+issues.map((issue,index)=>{
+
+if(!issue.ticketId){
+
+issue.ticketId =
+"ISS-" + (1000 + index);
+}
+
+return `
+
+<div class="report-card">
+
+<div class="ticket">
+${issue.ticketId}
+</div>
+
+<h2>${issue.category}</h2>
+
+<p>
+<strong>Location:</strong>
+${issue.location}
+</p>
+
+<p>
+${issue.description}
+</p>
+
+<div class="images-grid">
+${issue.mediaData ?
+`<img src="${issue.mediaData}">`
+:
+""
+}
+</div>
+
+<p>
+<strong>Reported On:</strong>
+${issue.reportedOn}
+</p>
+
+<p>
+<strong>Assigned Team:</strong>
+${issue.assignedTeam || "Not Assigned"}
+</p>
+
+<div class="status ${getStatusClass(issue.status)}">
+${issue.status || "Pending"}
+</div>
+
+<h4 style="margin-top:15px;">
+Assign Team
+</h4>
+
+<select id="team-${index}">
+<option value="">
+Select Team
+</option>
+
+<option value="Waste Team"
+${issue.assignedTeam==="Waste Team" ? "selected" : ""}>
+Waste Team
+</option>
+
+<option value="Road Team"
+${issue.assignedTeam==="Road Team" ? "selected" : ""}>
+Road Team
+</option>
+
+<option value="Electrical Team"
+${issue.assignedTeam==="Electrical Team" ? "selected" : ""}>
+Electrical Team
+</option>
+
+<option value="Water Team"
+${issue.assignedTeam==="Water Team" ? "selected" : ""}>
+Water Team
+</option>
+
+</select>
+
+<h4>
+Update Status
+</h4>
+
+<select id="status-${index}">
+
+<option
+${issue.status==="Pending"?"selected":""}>
+Pending
+</option>
+
+<option
+${issue.status==="Assigned"?"selected":""}>
+Assigned
+</option>
+
+<option
+${issue.status==="In Progress"?"selected":""}>
+In Progress
+</option>
+
+<option
+${issue.status==="Resolved"?"selected":""}>
+Resolved
+</option>
+
+</select>
+
+<button
+class="btn"
+onclick="saveChanges(${index})">
+Save Changes
+</button>
+
+</div>
+
+`;
+
+}).join("");
+
+localStorage.setItem(
+"reportedIssues",
+JSON.stringify(issues)
+);
+}
+
+loadReports();
+
+</script>
+
+</body>
+</html>

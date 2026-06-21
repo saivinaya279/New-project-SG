@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SocioServe - Report Issue</title>
+  <style>
+    :root {
+      --primary-red: #cc0000;
+      --secondary-blue: #003366;
+      --background-light: #f4f6f9;
+      --card-bg: #fff;
+      --text-color: #333;
+      --input-border: #ddd;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-light);
+      color: var(--text-color);
+      margin: 0;
+      padding-top: 5rem; 
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 50;
+      background-color: var(--card-bg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 1rem 0;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--secondary-blue);
+      text-decoration: none;
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .report-header h1 {
+      font-size: 2.2rem;
+      color: var(--primary-red);
+      margin-bottom: 5px;
+    }
+
+    .report-header p {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .report-card {
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--input-border);
+      border-radius: 5px;
+      font-size: 16px;
+      background-color: #fafafa;
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 15px;
+      background-color: var(--secondary-blue);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    .submit-button:hover {
+      background-color: #002244;
+    }
+
+    #statusMessage {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+    }
+
+    .success { background-color: #d4edda; color: #155724; }
+    .error { background-color: #f8d7da; color: #721c24; }
+    .info { background-color: #cce5ff; color: #004085; }
+
+    /* My Issues */
+    .my-issues {
+      margin-top: 40px;
+    }
+
+    .issue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .issue-card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .issue-img {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container nav-content">
+      <a href="home.html" class="logo">SocioServe</a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+
+      <section class="report-header">
+        <h1>Report a Community Issue</h1>
+        <p>Help us create cleaner, safer, and more responsive neighborhoods.</p>
+      </section>
+
+      <div class="report-card">
+        <form id="issueReportForm">
+
+          <div class="form-group">
+            <label for="issueType">Issue Category</label>
+            <select id="issueType" required>
+              <option value="">-- Select Category --</option>
+              <option value="Sanitation/Garbage">Sanitation / Garbage</option>
+              <option value="Road/Potholes">Road / Potholes</option>
+              <option value="Street Lighting">Street Lighting</option>
+              <option value="Water/Drainage">Water / Drainage</option>
+              <option value="Safety/Vandalism">Safety / Vandalism</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Detailed Location / Address</label>
+            <input type="text" id="location" required>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Detailed Description</label>
+            <textarea id="description" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="media">Upload Photo/Video (optional)</label>
+            <input type="file" id="media" accept="image/*,video/*">
+          </div>
+
+          <button class="submit-button">Submit Issue Report</button>
+
+          <div id="statusMessage"></div>
+
+        </form>
+      </div>
+
+      <section class="my-issues">
+        <h2>My Reported Issues</h2>
+        <div id="issuesContainer" class="issue-list"></div>
+      </section>
+    </div>
+  </main>
+
+<script>
+
+const form = document.getElementById("issueReportForm");
+const issuesContainer = document.getElementById("issuesContainer");
+const mediaInput = document.getElementById("media");
+const statusMessage = document.getElementById("statusMessage");
+
+function displayStatus(msg, type) {
+  statusMessage.textContent = msg;
+  statusMessage.className = type;
+  statusMessage.style.display = "block";
+}
+
+function renderIssues() {
+
+  const issues =
+  JSON.parse(
+    localStorage.getItem("reportedIssues")
+  ) || [];
+
+  if (issues.length === 0) {
+
+    issuesContainer.innerHTML =
+    "<p style='text-align:center;color:#666;'>No issues reported yet.</p>";
+
+    return;
+  }
+
+  issuesContainer.innerHTML = issues.map(issue => `
+
+    <div class="issue-card">
+
+      <h3>${issue.category}</h3>
+
+      <div>
+        🎫 Ticket ID:
+        <strong>${issue.ticketId}</strong>
+      </div>
+
+      <div>
+        📍 ${issue.location}
+      </div>
+
+      <p>
+        ${issue.description}
+      </p>
+
+      ${issue.mediaData
+        ?
+        `<img src="${issue.mediaData}" class="issue-img">`
+        :
+        ""
+      }
+
+      <div>
+        🕒 ${issue.reportedOn}
+      </div>
+
+      <div>
+        👷 Assigned Team:
+        <strong>
+          ${issue.assignedTeam || "Not Assigned"}
+        </strong>
+      </div>
+
+      <div>
+        📌 Status:
+        <strong>
+          ${issue.status || "Pending"}
+        </strong>
+      </div>
+
+    </div>
+
+  `).join("");
+}
+
+form.addEventListener("submit", (e) => {
+
+  e.preventDefault();
+
+  const mediaFile =
+  mediaInput.files[0];
+
+  const issueData = {
+
+    ticketId:
+    "ISS-" + Date.now(),
+
+    category:
+    document.getElementById("issueType").value,
+
+    location:
+    document.getElementById("location").value,
+
+    description:
+    document.getElementById("description").value,
+
+    reportedOn:
+    new Date().toLocaleString(),
+
+    status:
+    "Pending",
+
+    assignedTeam:
+    "Not Assigned",
+
+    mediaData:
+    null
+  };
+
+  if (mediaFile) {
+
+    const reader =
+    new FileReader();
+
+    reader.onload = function () {
+
+      issueData.mediaData =
+      reader.result;
+
+      saveIssue(issueData);
+    };
+
+    reader.readAsDataURL(mediaFile);
+
+  } else {
+
+    saveIssue(issueData);
+  }
+});
+
+function saveIssue(issue) {
+
+  const existing =
+  JSON.parse(
+    localStorage.getItem("reportedIssues")
+  ) || [];
+
+  existing.push(issue);
+
+  localStorage.setItem(
+    "reportedIssues",
+    JSON.stringify(existing)
+  );
+
+  displayStatus(
+    "Issue submitted successfully!",
+    "success"
+  );
+
+  form.reset();
+
+  renderIssues();
+}
+
+window.onload = renderIssues;
+
+</script>
+
+
+
+</body>
+</html>

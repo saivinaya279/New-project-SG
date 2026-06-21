@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocioServe - Request Local Service</title>
+    <style>
+        :root {
+            --primary-red: #cc0000;
+            --secondary-blue: #003366;
+            --background-light: #f4f6f9;
+            --card-bg: #fff;
+            --text-color: #333;
+            --input-border: #ddd;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            margin: 0;
+            padding-top: 5rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            background-color: var(--card-bg); 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--secondary-blue); text-decoration: none; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+
+        .request-header { text-align: center; margin-bottom: 30px; }
+        .request-header h1 { font-size: 2.2rem; color: var(--secondary-blue); }
+        
+        .request-card {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { font-weight: bold; margin-bottom: 8px; display: block; }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 12px;
+            border: 1px solid var(--input-border);
+            border-radius: 5px; font-size: 16px; background: #fafafa;
+        }
+
+        .date-time-group { display: flex; gap: 20px; }
+        .date-time-group > div { flex: 1; }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-button:hover { background-color: #a00000; }
+
+        #statusMessage {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container nav-content">
+        <a href="home.html" class="logo">SocioServe</a>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="container">
+        <section class="request-header">
+            <h1>Request Verified Local Service</h1>
+            <p>Describe your job to be matched with a trusted professional.</p>
+        </section>
+
+        <div class="request-card">
+            <form id="serviceRequestForm">
+
+                <div class="form-group">
+                    <label for="serviceCategory">Service Needed</label>
+                    <select id="serviceCategory" required>
+                        <option value="">-- Select Service Type --</option>
+                        <option value="plumbing">Plumbing / Leak Repair</option>
+                        <option value="electrical">Electrical / Wiring</option>
+                        <option value="cleaning">Home Cleaning</option>
+                        <option value="ac">AC / Appliance Repair</option>
+                        <option value="carpentry">Carpentry / Furniture</option>
+                        <option value="verified">Verified Services Only</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="jobLocation">Service Location / Address</label>
+                    <input type="text" id="jobLocation" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="jobDetails">Job Details</label>
+                    <textarea id="jobDetails" required></textarea>
+                </div>
+
+                <div class="date-time-group">
+                    <div class="form-group">
+                        <label for="preferredDate">Preferred Date</label>
+                        <input type="date" id="preferredDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="preferredTime">Preferred Time</label>
+                        <input type="time" id="preferredTime">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-button">Find Verified Provider</button>
+
+                <div id="statusMessage"></div>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<script>
+const form = document.getElementById("serviceRequestForm");
+const statusMessage = document.getElementById("statusMessage");
+
+// SAVE REQUEST
+form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const newRequest = {
+        category: serviceCategory.value,
+        location: jobLocation.value,
+        details: jobDetails.value,
+        preferredDate: preferredDate.value,
+        preferredTime: preferredTime.value,
+        submittedOn: new Date().toLocaleString(),
+        status: "Pending",
+        adminMessage: "",
+        contact: ""
+    };
+
+    const existing = JSON.parse(localStorage.getItem("serviceRequests")) || [];
+    existing.push(newRequest);
+    localStorage.setItem("serviceRequests", JSON.stringify(existing));
+
+    statusMessage.textContent = "Request submitted! Searching for providers...";
+    statusMessage.className = "success";
+    statusMessage.style.display = "block";
+
+    form.reset();
+});
+
+// CHECK FOR ADMIN UPDATE
+window.onload = function () {
+    const requests = JSON.parse(localStorage.getItem("serviceRequests")) || [];
+    if (requests.length === 0) return;
+
+    const last = requests[requests.length - 1];
+
+    if (last.status === "Approved" && !last.contact) {
+        let phone = prompt("Good news! A provider is available.\nPlease enter your contact number:");
+        if (phone) {
+            last.contact = phone;
+            localStorage.setItem("serviceRequests", JSON.stringify(requests));
+            alert("Your contact has been shared with the service provider.");
+        }
+    }
+
+    if (last.status === "Rejected") {
+        alert(last.adminMessage);
+    }
+};
+</script>
+
+</body>
+</html>
